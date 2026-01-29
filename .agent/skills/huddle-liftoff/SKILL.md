@@ -19,6 +19,33 @@ description: Full bootstrap for Moqui 4.0. Flattens framework, sets up runtime, 
    - Execute: `git clone https://github.com/moqui/moqui-runtime.git runtime`.
    - Verify the sibling structure: Root now contains both `framework/` and `runtime/`.
 
+## Step 2.5: Component Set & UI Transition
+- **Target:** Terminal / Workspace Root
+- **Action:** 1. Fetch the demo component set.
+            2. Switch UI-critical components to the Vue 3 / Quasar 2 branch.
+- **Commands:**
+  ```bash
+  # Pull the standard ecosystem
+  ./gradlew getComponentSet -PcomponentSet=demo
+
+  # Targeted Branch Switch (Vue 3 / Quasar 2)
+  # We iterate through the components and attempt to checkout the branch if it exists.
+  for dir in runtime/component/*; do
+    if [ -d "$dir/.git" ]; then
+      echo "Checking for vue3quasar2 branch in $dir..."
+      cd "$dir"
+      if git show-ref --verify --quiet refs/remotes/origin/vue3quasar2; then
+        git checkout vue3quasar2
+      elif git show-ref --verify --quiet refs/heads/vue3quasar2; then
+        git checkout vue3quasar2
+      else
+        echo "No vue3quasar2 branch found in $dir, staying on current branch."
+      fi
+      cd - > /dev/null
+    fi
+  done
+  ```
+
 ## Step 3: Component Scaffolding & Data Modeling
 1. **Create Directory:** `{{COMP_PATH}}/entity/`.
 2. **Create {{BASE_NAME}}ArtifactEntities.xml:**
